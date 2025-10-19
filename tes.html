@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Absensi Sekolah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        .pulse-green {
+            animation: pulseGreen 2s infinite;
+        }
+        @keyframes pulseGreen {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        .modal {
+            backdrop-filter: blur(4px);
+        }
+        .role-card {
+            transition: all 0.3s ease;
+        }
+        .role-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="h-full bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div id="app" class="min-h-full">
+        <!-- Header -->
+        <header class="bg-white shadow-lg border-b-4 border-blue-500">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-blue-500 p-2 rounded-lg">
+                            <i class="fas fa-graduation-cap text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">Dashboard Absensi</h1>
+                            <p class="text-sm text-gray-600">Sistem Manajemen Kehadiran Sekolah</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div id="userInfo" class="hidden text-right">
+                            <p class="text-sm font-medium text-gray-900" id="userName"></p>
+                            <p class="text-xs text-gray-500" id="userRole"></p>
+                        </div>
+                        <button id="loginBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login
+                        </button>
+                        <button id="logoutBtn" class="hidden bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Welcome Section for Non-Logged Users -->
+            <div id="welcomeSection" class="mb-8">
+                <!-- Hero Section -->
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl shadow-xl p-8 text-white mb-8">
+                    <div class="text-center">
+                        <h1 class="text-4xl font-bold mb-4">Selamat Datang di Sistem Absensi Digital</h1>
+                        <p class="text-xl mb-6 opacity-90">SMAN 1 Jakarta - Sistem Manajemen Kehadiran Terpadu</p>
+                        <div class="flex justify-center space-x-4">
+                            <button onclick="openLoginModal()" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg">
+                                <i class="fas fa-sign-in-alt mr-2"></i>Login Sistem
+                            </button>
+                            <button onclick="scrollToSearch()" class="bg-blue-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-400 transition-colors border-2 border-white">
+                                <i class="fas fa-search mr-2"></i>Cari Data Siswa
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Login Options -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="role-card bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-xl cursor-pointer" onclick="quickLogin('ADMIN001')">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-red-100 p-3 rounded-full">
+                                <i class="fas fa-user-shield text-red-500 text-2xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-bold text-gray-900">Administrator</h3>
+                                <p class="text-sm text-gray-600">Kelola seluruh sistem</p>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <p>• Manajemen user & siswa</p>
+                            <p>• Laporan lengkap</p>
+                            <p>• Pengaturan sistem</p>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">Klik untuk Login Demo</span>
+                        </div>
+                    </div>
+
+                    <div class="role-card bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl cursor-pointer" onclick="quickLogin('GURU001')">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-chalkboard-teacher text-blue-500 text-2xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-bold text-gray-900">Guru Mata Pelajaran</h3>
+                                <p class="text-sm text-gray-600">Input & kelola absensi</p>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <p>• Input absensi siswa</p>
+                            <p>• Riwayat mengajar</p>
+                            <p>• Foto & lokasi otomatis</p>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">Klik untuk Login Demo</span>
+                        </div>
+                    </div>
+
+                    <div class="role-card bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl cursor-pointer" onclick="quickLogin('WALI001')">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-users text-green-500 text-2xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-bold text-gray-900">Wali Kelas</h3>
+                                <p class="text-sm text-gray-600">Monitor siswa kelas</p>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <p>• Monitoring kehadiran</p>
+                            <p>• Notifikasi WhatsApp</p>
+                            <p>• Laporan harian</p>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">Klik untuk Login Demo</span>
+                        </div>
+                    </div>
+
+                    <div class="role-card bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl cursor-pointer" onclick="quickLogin('KEPSEK001')">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-purple-100 p-3 rounded-full">
+                                <i class="fas fa-crown text-purple-500 text-2xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-bold text-gray-900">Kepala Sekolah</h3>
+                                <p class="text-sm text-gray-600">Pantau seluruh sekolah</p>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <p>• Dashboard eksekutif</p>
+                            <p>• Statistik lengkap</p>
+                            <p>• Aktivitas real-time</p>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium">Klik untuk Login Demo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Public Search Section -->
+            <div id="publicSection" class="mb-8">
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-search text-green-500 text-xl mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">Cari Data Absensi Siswa</h2>
+                    </div>
+                    <p class="text-gray-600 mb-6">Orang tua/wali dapat mencari data kehadiran siswa dengan memasukkan nama atau NISN</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="searchName" class="block text-sm font-medium text-gray-700 mb-2">Nama Siswa</label>
+                            <input type="text" id="searchName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Masukkan nama siswa...">
+                        </div>
+                        <div>
+                            <label for="searchNISN" class="block text-sm font-medium text-gray-700 mb-2">NISN</label>
+                            <input type="text" id="searchNISN" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Masukkan NISN...">
+                        </div>
+                    </div>
+                    
+                    <button onclick="searchStudent()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors pulse-green">
+                        <i class="fas fa-search mr-2"></i>Cari Data Absensi
+                    </button>
+                </div>
+
+                <!-- Search Results -->
+                <div id="searchResults" class="hidden mt-6 bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Hasil Pencarian</h3>
+                    <div id="studentInfo" class="mb-6"></div>
+                    <div id="attendanceData"></div>
+                </div>
+            </div>
+
+            <!-- Login Modal -->
+            <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal">
+                <div class="bg-white rounded-xl p-8 w-full max-w-lg mx-4 fade-in">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                                <i class="fas fa-sign-in-alt text-blue-500 text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900">Login Sistem Absensi</h3>
+                        </div>
+                        <button onclick="closeLoginModal()" class="text-gray-400 hover:text-gray-600 p-2">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="accessCode" class="block text-sm font-medium text-gray-700 mb-3">Kode Akses Unik</label>
+                        <input type="password" id="accessCode" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg" placeholder="Masukkan kode akses..." onkeypress="handleEnterLogin(event)">
+                        
+                        <div class="mt-4 bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-900 mb-2">Kode Demo untuk Testing:</h4>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Admin:</span>
+                                    <span class="font-mono font-bold text-red-600">ADMIN001</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Guru:</span>
+                                    <span class="font-mono font-bold text-blue-600">GURU001</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Wali Kelas:</span>
+                                    <span class="font-mono font-bold text-green-600">WALI001</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Kepala Sekolah:</span>
+                                    <span class="font-mono font-bold text-purple-600">KEPSEK001</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="loginError" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <span id="loginErrorMessage">Kode akses tidak valid</span>
+                    </div>
+                    
+                    <button onclick="login()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg transition-colors font-semibold text-lg">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Masuk ke Sistem
+                    </button>
+                    
+                    <button onclick="testLogin()" class="w-full mt-2 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg transition-colors text-sm">
+                        <i class="fas fa-bug mr-2"></i>Test Login (Debug)
+                    </button>
+                    
+                    <div class="mt-4 text-center">
+                        <p class="text-sm text-gray-500">Atau pilih login cepat:</p>
+                        <div class="flex justify-center space-x-2 mt-2">
+                            <button onclick="quickLogin('ADMIN001')" class="px-3 py-1 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200 transition-colors">Admin</button>
+                            <button onclick="quickLogin('GURU001')" class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs hover:bg-blue-200 transition-colors">Guru</button>
+                            <button onclick="quickLogin('WALI001')" class="px-3 py-1 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition-colors">Wali Kelas</button>
+                            <button onclick="quickLogin('KEPSEK001')" class="px-3 py-1 bg-purple-100 text-purple-700 rounded text-xs hover:bg-purple-200 transition-colors">Kepala Sekolah</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content (Hidden by default) -->
+            <div id="dashboardContent" class="hidden">
+                <!-- Navigation Tabs -->
+                <div class="bg-white rounded-xl shadow-lg mb-6">
+                    <div class="border-b border-gray-200">
+                        <nav class="flex space-x-8 px-6 overflow-x-auto" id="navigationTabs">
+                            <!-- Tabs will be populated based on user role -->
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Tab Content -->
+                <div id="tabContent" class="space-y-6">
+                    <!-- Content will be populated based on selected tab -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Modals -->
+        <div id="modalContainer"></div>
+    </div>
+
+    <script>
+        // Enhanced sample data
+        const sampleStudents = [
+            {
+                id: 1,
+                name: "Ahmad Rizki Pratama",
+                nisn: "1234567890",
+                class: "XII IPA 1",
+                phone: "081234567890",
+                parentName: "Budi Pratama",
+                parentPhone: "081234567891",
+                address: "Jl. Merdeka No. 123, Jakarta",
+                birthDate: "2005-03-15",
+                gender: "L",
+                attendance: [
+                    { date: "2024-01-15", subject: "Matematika", teacher: "Pak Suharto", status: "Hadir", material: "Integral", location: "Ruang 12A", time: "07:30" },
+                    { date: "2024-01-15", subject: "Fisika", teacher: "Bu Sari", status: "Hadir", material: "Gelombang", location: "Lab Fisika", time: "09:00" },
+                    { date: "2024-01-14", subject: "Matematika", teacher: "Pak Suharto", status: "Izin", material: "Diferensial", location: "Ruang 12A", time: "07:30" },
+                    { date: "2024-01-14", subject: "Kimia", teacher: "Bu Rina", status: "Sakit", material: "Asam Basa", location: "Lab Kimia", time: "10:30" },
+                    { date: "2024-01-13", subject: "Matematika", teacher: "Pak Suharto", status: "Alpha", material: "Limit", location: "Ruang 12A", time: "07:30" }
+                ]
+            },
+            {
+                id: 2,
+                name: "Siti Nurhaliza",
+                nisn: "0987654321",
+                class: "XI IPS 2",
+                phone: "081987654321",
+                parentName: "Hasan Basri",
+                parentPhone: "081987654322",
+                address: "Jl. Sudirman No. 456, Jakarta",
+                birthDate: "2006-07-22",
+                gender: "P",
+                attendance: [
+                    { date: "2024-01-15", subject: "Sejarah", teacher: "Pak Budi", status: "Hadir", material: "Kemerdekaan RI", location: "Ruang 11B", time: "07:30" },
+                    { date: "2024-01-15", subject: "Geografi", teacher: "Bu Ani", status: "Hadir", material: "Peta Topografi", location: "Ruang 11B", time: "09:00" },
+                    { date: "2024-01-14", subject: "Ekonomi", teacher: "Pak Dedi", status: "Hadir", material: "Inflasi", location: "Ruang 11B", time: "10:30" }
+                ]
+            },
+            {
+                id: 3,
+                name: "Budi Santoso",
+                nisn: "1122334455",
+                class: "XII IPA 1",
+                phone: "081122334455",
+                parentName: "Sari Dewi",
+                parentPhone: "081122334456",
+                address: "Jl. Gatot Subroto No. 789, Jakarta",
+                birthDate: "2005-11-08",
+                gender: "L",
+                attendance: [
+                    { date: "2024-01-15", subject: "Matematika", teacher: "Pak Suharto", status: "Alpha", material: "Integral", location: "Ruang 12A", time: "07:30" },
+                    { date: "2024-01-14", subject: "Matematika", teacher: "Pak Suharto", status: "Alpha", material: "Diferensial", location: "Ruang 12A", time: "07:30" },
+                    { date: "2024-01-13", subject: "Fisika", teacher: "Bu Sari", status: "Sakit", material: "Gelombang", location: "Lab Fisika", time: "09:00" }
+                ]
+            }
+        ];
+
+        const users = {
+            "ADMIN001": { role: "Admin", name: "Administrator", permissions: ["all"] },
+            "GURU001": { role: "Guru", name: "Pak Suharto", subject: "Matematika", classes: ["XII IPA 1", "XII IPA 2"] },
+            "WALI001": { role: "Wali Kelas", name: "Bu Sari", class: "XII IPA 1", subject: "Fisika" },
+            "KEPSEK001": { role: "Kepala Sekolah", name: "Drs. Ahmad Wijaya", permissions: ["view_all", "reports"] }
+        };
+
+        const subjects = ["Matematika", "Fisika", "Kimia", "Biologi", "Sejarah", "Geografi", "Ekonomi", "Sosiologi", "Bahasa Indonesia", "Bahasa Inggris"];
+        const classes = ["X IPA 1", "X IPA 2", "X IPS 1", "X IPS 2", "XI IPA 1", "XI IPA 2", "XI IPS 1", "XI IPS 2", "XII IPA 1", "XII IPA 2", "XII IPS 1", "XII IPS 2"];
+
+        let currentUser = null;
+        let currentTab = 'dashboard';
+
+        // Public search functionality
+        function searchStudent() {
+            const name = document.getElementById('searchName').value.trim();
+            const nisn = document.getElementById('searchNISN').value.trim();
+            
+            if (!name && !nisn) {
+                showNotification('Masukkan nama atau NISN untuk mencari', 'warning');
+                return;
+            }
+
+            const student = sampleStudents.find(s => 
+                (name && s.name.toLowerCase().includes(name.toLowerCase())) ||
+                (nisn && s.nisn === nisn)
+            );
+
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (student) {
+                displayStudentResults(student);
+                resultsDiv.classList.remove('hidden');
+                resultsDiv.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                showNotification('Data siswa tidak ditemukan', 'error');
+                resultsDiv.classList.add('hidden');
+            }
+        }
+
+        function displayStudentResults(student) {
+            const studentInfoDiv = document.getElementById('studentInfo');
+            const attendanceDataDiv = document.getElementById('attendanceData');
+
+            // Student info
+            studentInfoDiv.innerHTML = `
+                <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Informasi Siswa</h4>
+                            <p class="text-sm text-gray-600 mt-1">Nama: <span class="font-medium">${student.name}</span></p>
+                            <p class="text-sm text-gray-600">NISN: <span class="font-medium">${student.nisn}</span></p>
+                            <p class="text-sm text-gray-600">Kelas: <span class="font-medium">${student.class}</span></p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Statistik Kehadiran</h4>
+                            ${generateAttendanceStats(student.attendance)}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Attendance data
+            attendanceDataDiv.innerHTML = `
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mata Pelajaran</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guru</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Materi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            ${student.attendance.map(att => `
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDate(att.date)}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${att.subject}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${att.teacher}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(att.status)}">
+                                            ${att.status}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">${att.material}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function generateAttendanceStats(attendance) {
+            const stats = {
+                hadir: attendance.filter(a => a.status === 'Hadir').length,
+                izin: attendance.filter(a => a.status === 'Izin').length,
+                sakit: attendance.filter(a => a.status === 'Sakit').length,
+                alpha: attendance.filter(a => a.status === 'Alpha').length
+            };
+            
+            const total = attendance.length;
+            const percentage = total > 0 ? ((stats.hadir / total) * 100).toFixed(1) : 0;
+
+            return `
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                    <div class="text-green-600">Hadir: ${stats.hadir}</div>
+                    <div class="text-yellow-600">Izin: ${stats.izin}</div>
+                    <div class="text-blue-600">Sakit: ${stats.sakit}</div>
+                    <div class="text-red-600">Alpha: ${stats.alpha}</div>
+                </div>
+                <p class="text-sm text-gray-600 mt-2">Persentase Kehadiran: <span class="font-bold text-green-600">${percentage}%</span></p>
+            `;
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'Hadir': 'bg-green-100 text-green-800',
+                'Izin': 'bg-yellow-100 text-yellow-800',
+                'Sakit': 'bg-blue-100 text-blue-800',
+                'Alpha': 'bg-red-100 text-red-800'
+            };
+            return colors[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        // Login functionality
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.getElementById('accessCode').focus();
+            hideLoginError();
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('accessCode').value = '';
+            hideLoginError();
+        }
+
+        function handleEnterLogin(event) {
+            if (event.key === 'Enter') {
+                login();
+            }
+        }
+
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            const errorMessage = document.getElementById('loginErrorMessage');
+            errorMessage.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        function hideLoginError() {
+            document.getElementById('loginError').classList.add('hidden');
+        }
+
+        function quickLogin(code) {
+            document.getElementById('accessCode').value = code;
+            login();
+        }
+
+        function testLogin() {
+            const code = document.getElementById('accessCode').value.trim().toUpperCase();
+            
+            // Debug information
+            alert(`
+Debug Info:
+- Kode yang dimasukkan: "${code}"
+- Panjang kode: ${code.length}
+- Users tersedia: ${Object.keys(users).join(', ')}
+- Apakah kode ada di users: ${users.hasOwnProperty(code)}
+- Type of users: ${typeof users}
+            `);
+            
+            // Try direct login
+            if (code === 'ADMIN001') {
+                currentUser = { code: 'ADMIN001', ...users['ADMIN001'] };
+                showDashboard();
+                closeLoginModal();
+                showNotification('Login paksa berhasil!', 'success');
+            }
+        }
+
+        function scrollToSearch() {
+            document.getElementById('publicSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function login() {
+            const code = document.getElementById('accessCode').value.trim().toUpperCase();
+            
+            if (!code) {
+                showLoginError('Masukkan kode akses terlebih dahulu');
+                return;
+            }
+
+            console.log('Mencoba login dengan kode:', code);
+            console.log('Users yang tersedia:', Object.keys(users));
+
+            if (users[code]) {
+                currentUser = { code, ...users[code] };
+                console.log('Login berhasil untuk user:', currentUser);
+                showDashboard();
+                closeLoginModal();
+                showNotification(`Selamat datang, ${currentUser.name}! Login sebagai ${currentUser.role}`, 'success');
+            } else {
+                console.log('Kode tidak ditemukan:', code);
+                showLoginError('Kode akses tidak valid. Gunakan kode demo yang tersedia.');
+                // Shake animation for error
+                const modal = document.querySelector('#loginModal .bg-white');
+                if (modal) {
+                    modal.style.animation = 'shake 0.5s';
+                    setTimeout(() => {
+                        modal.style.animation = '';
+                    }, 500);
+                }
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            hideDashboard();
+            showNotification('Anda telah logout', 'info');
+        }
+
+        function showDashboard() {
+            // Hide welcome section and show dashboard
+            document.getElementById('welcomeSection').classList.add('hidden');
+            document.getElementById('publicSection').classList.add('hidden');
+            
+            // Update header
+            document.getElementById('loginBtn').classList.add('hidden');
+            document.getElementById('logoutBtn').classList.remove('hidden');
+            document.getElementById('userInfo').classList.remove('hidden');
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userRole').textContent = currentUser.role;
+            
+            // Show dashboard content
+            document.getElementById('dashboardContent').classList.remove('hidden');
+            
+            setupNavigation();
+            showTab('dashboard');
+        }
+
+        function hideDashboard() {
+            // Show welcome section and hide dashboard
+            document.getElementById('welcomeSection').classList.remove('hidden');
+            document.getElementById('publicSection').classList.remove('hidden');
+            
+            // Update header
+            document.getElementById('loginBtn').classList.remove('hidden');
+            document.getElementById('logoutBtn').classList.add('hidden');
+            document.getElementById('userInfo').classList.add('hidden');
+            
+            // Hide dashboard content
+            document.getElementById('dashboardContent').classList.add('hidden');
+        }
+
+        function setupNavigation() {
+            const navTabs = document.getElementById('navigationTabs');
+            let tabs = [];
+
+            switch(currentUser.role) {
+                case 'Admin':
+                    tabs = [
+                        { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' },
+                        { id: 'users', label: 'Kelola User', icon: 'fas fa-users' },
+                        { id: 'students', label: 'Data Siswa', icon: 'fas fa-user-graduate' },
+                        { id: 'reports', label: 'Laporan', icon: 'fas fa-chart-bar' },
+                        { id: 'settings', label: 'Pengaturan', icon: 'fas fa-cog' }
+                    ];
+                    break;
+                case 'Guru':
+                    tabs = [
+                        { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' },
+                        { id: 'attendance', label: 'Input Absensi', icon: 'fas fa-clipboard-check' },
+                        { id: 'history', label: 'Riwayat', icon: 'fas fa-history' }
+                    ];
+                    break;
+                case 'Wali Kelas':
+                    tabs = [
+                        { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' },
+                        { id: 'monitoring', label: 'Monitoring Siswa', icon: 'fas fa-eye' },
+                        { id: 'daily', label: 'Absensi Harian', icon: 'fas fa-calendar-day' },
+                        { id: 'problematic', label: 'Siswa Bermasalah', icon: 'fas fa-exclamation-triangle' },
+                        { id: 'notifications', label: 'Notifikasi WA', icon: 'fas fa-whatsapp' }
+                    ];
+                    break;
+                case 'Kepala Sekolah':
+                    tabs = [
+                        { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' },
+                        { id: 'overview', label: 'Ringkasan', icon: 'fas fa-chart-pie' },
+                        { id: 'statistics', label: 'Statistik', icon: 'fas fa-chart-line' },
+                        { id: 'activities', label: 'Aktivitas Terbaru', icon: 'fas fa-bell' }
+                    ];
+                    break;
+            }
+
+            navTabs.innerHTML = tabs.map(tab => `
+                <button onclick="showTab('${tab.id}')" 
+                        class="tab-button flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${tab.id === 'dashboard' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}"
+                        data-tab="${tab.id}">
+                    <i class="${tab.icon}"></i>
+                    <span>${tab.label}</span>
+                </button>
+            `).join('');
+        }
+
+        function showTab(tabId) {
+            // Update active tab
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.className = btn.className.replace('border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300', 'border-blue-500 text-blue-600');
+                } else {
+                    btn.className = btn.className.replace('border-blue-500 text-blue-600', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300');
+                }
+            });
+
+            currentTab = tabId;
+            renderTabContent(tabId);
+        }
+
+        function renderTabContent(tabId) {
+            const content = document.getElementById('tabContent');
+            
+            switch(tabId) {
+                case 'dashboard':
+                    content.innerHTML = renderDashboard();
+                    break;
+                case 'attendance':
+                    content.innerHTML = renderAttendanceForm();
+                    break;
+                case 'monitoring':
+                    content.innerHTML = renderMonitoring();
+                    break;
+                case 'problematic':
+                    content.innerHTML = renderProblematicStudents();
+                    break;
+                case 'users':
+                    content.innerHTML = renderUserManagement();
+                    break;
+                case 'students':
+                    content.innerHTML = renderStudentManagement();
+                    break;
+                case 'reports':
+                    content.innerHTML = renderReports();
+                    break;
+                case 'settings':
+                    content.innerHTML = renderSettings();
+                    break;
+                case 'history':
+                    content.innerHTML = renderAttendanceHistory();
+                    break;
+                case 'daily':
+                    content.innerHTML = renderDailyAttendance();
+                    break;
+                case 'notifications':
+                    content.innerHTML = renderNotifications();
+                    break;
+                case 'overview':
+                    content.innerHTML = renderOverview();
+                    break;
+                case 'statistics':
+                    content.innerHTML = renderStatistics();
+                    break;
+                case 'activities':
+                    content.innerHTML = renderActivities();
+                    break;
+                default:
+                    content.innerHTML = `
+                        <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                            <i class="fas fa-tools text-4xl text-gray-400 mb-4"></i>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Fitur ${tabId} Sedang Dikembangkan</h3>
+                            <p class="text-gray-600">Fitur ini akan segera tersedia dalam update mendatang.</p>
+                        </div>
+                    `;
+            }
+        }
+
+        function renderDashboard() {
+            const stats = generateDashboardStats();
+            
+            return `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    ${stats.map(stat => `
+                        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 ${stat.color}">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="${stat.icon} text-2xl ${stat.textColor}"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-500">${stat.label}</p>
+                                    <p class="text-2xl font-bold text-gray-900">${stat.value}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">Aktivitas Terbaru</h3>
+                        <div class="space-y-3">
+                            ${generateRecentActivities().map(activity => `
+                                <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                    <i class="${activity.icon} ${activity.color}"></i>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900">${activity.title}</p>
+                                        <p class="text-xs text-gray-500">${activity.time}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">Grafik Kehadiran Mingguan</h3>
+                        <div class="h-64 flex items-end justify-between space-x-2">
+                            ${generateWeeklyChart()}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAttendanceForm() {
+            return `
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center mb-6">
+                        <i class="fas fa-clipboard-check text-blue-500 text-xl mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-900">Input Absensi</h2>
+                    </div>
+                    
+                    <form onsubmit="submitAttendance(event)" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="attendanceClass" class="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
+                                <select id="attendanceClass" onchange="loadStudentList()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="">Pilih Kelas</option>
+                                    ${(currentUser.classes || classes).map(cls => `<option value="${cls}">${cls}</option>`).join('')}
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="attendanceSubject" class="block text-sm font-medium text-gray-700 mb-2">Mata Pelajaran</label>
+                                <select id="attendanceSubject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="">Pilih Mata Pelajaran</option>
+                                    ${currentUser.subject ? `<option value="${currentUser.subject}">${currentUser.subject}</option>` : subjects.map(subj => `<option value="${subj}">${subj}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="attendanceMaterial" class="block text-sm font-medium text-gray-700 mb-2">Materi Pembelajaran</label>
+                            <input type="text" id="attendanceMaterial" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Masukkan materi yang diajarkan...">
+                        </div>
+                        
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-camera text-blue-500 mr-2"></i>
+                                <span class="font-medium text-gray-900">Foto & Lokasi Otomatis</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <button type="button" onclick="capturePhoto()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-colors">
+                                        <i class="fas fa-camera mr-2"></i>Ambil Foto
+                                    </button>
+                                    <div id="photoPreview" class="mt-2 hidden">
+                                        <img id="capturedPhoto" class="w-full h-32 object-cover rounded-lg border">
+                                    </div>
+                                </div>
+                                <div>
+                                    <button type="button" onclick="getLocation()" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition-colors">
+                                        <i class="fas fa-map-marker-alt mr-2"></i>Dapatkan Lokasi
+                                    </button>
+                                    <div id="locationInfo" class="mt-2 text-sm text-gray-600"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="studentList" class="space-y-3">
+                            <!-- Student list will be populated when class is selected -->
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg transition-colors font-medium">
+                            <i class="fas fa-save mr-2"></i>Simpan Absensi
+                        </button>
+                    </form>
+                </div>
+            `;
+        }
+
+        function renderUserManagement() {
+            return `
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <i class="fas fa-users text-blue-500 text-xl mr-3"></i>
+                                <h2 class="text-xl font-bold text-gray-900">Manajemen User</h2>
+                            </div>
+                            <button onclick="openAddUserModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Tambah User
+                            </button>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode Akses</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    ${Object.entries(users).map(([code, user]) => `
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.name}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.role}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${code}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    Aktif
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                                <button onclick="editUser('${code}')" class="text-blue-600 hover:text-blue-900">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button onclick="deleteUser('${code}')" class="text-red-600 hover:text-red-900">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStudentManagement() {
+            return `
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <i class="fas fa-user-graduate text-blue-500 text-xl mr-3"></i>
+                                <h2 class="text-xl font-bold text-gray-900">Data Siswa</h2>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="importStudents()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                    <i class="fas fa-upload mr-2"></i>Import Excel
+                                </button>
+                                <button onclick="openAddStudentModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                    <i class="fas fa-plus mr-2"></i>Tambah Siswa
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex space-x-4">
+                                <input type="text" id="studentSearch" placeholder="Cari nama atau NISN..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <select id="classFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="">Semua Kelas</option>
+                                    ${classes.map(cls => `<option value="${cls}">${cls}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NISN</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orang Tua</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    ${sampleStudents.map(student => `
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${student.name}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.nisn}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.class}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.gender === 'L' ? 'Laki-laki' : 'Perempuan'}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.parentName}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                                <button onclick="viewStudentDetail('${student.id}')" class="text-blue-600 hover:text-blue-900">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button onclick="editStudent('${student.id}')" class="text-green-600 hover:text-green-900">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button onclick="deleteStudent('${student.id}')" class="text-red-600 hover:text-red-900">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderReports() {
+            return `
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center mb-6">
+                            <i class="fas fa-chart-bar text-blue-500 text-xl mr-3"></i>
+                            <h2 class="text-xl font-bold text-gray-900">Laporan Absensi</h2>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div>
+                                <label for="reportClass" class="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
+                                <select id="reportClass" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="">Semua Kelas</option>
+                                    ${classes.map(cls => `<option value="${cls}">${cls}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label for="reportStartDate" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
+                                <input type="date" id="reportStartDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label for="reportEndDate" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Akhir</label>
+                                <input type="date" id="reportEndDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-4 mb-6">
+                            <button onclick="generateReport()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-chart-line mr-2"></i>Generate Laporan
+                            </button>
+                            <button onclick="exportReport('excel')" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-file-excel mr-2"></i>Export Excel
+                            </button>
+                            <button onclick="exportReport('pdf')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-file-pdf mr-2"></i>Export PDF
+                            </button>
+                        </div>
+                        
+                        <div id="reportResults" class="hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                                <div class="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-check-circle text-green-500 text-2xl mr-3"></i>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-500">Total Hadir</p>
+                                            <p class="text-2xl font-bold text-gray-900" id="totalHadir">0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-info-circle text-yellow-500 text-2xl mr-3"></i>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-500">Total Izin</p>
+                                            <p class="text-2xl font-bold text-gray-900" id="totalIzin">0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-heart text-blue-500 text-2xl mr-3"></i>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-500">Total Sakit</p>
+                                            <p class="text-2xl font-bold text-gray-900" id="totalSakit">0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-red-50 rounded-lg p-4 border-l-4 border-red-500">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-times-circle text-red-500 text-2xl mr-3"></i>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-500">Total Alpha</p>
+                                            <p class="text-2xl font-bold text-gray-900" id="totalAlpha">0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Siswa</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hadir</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Izin</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sakit</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alpha</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Persentase</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reportTableBody" class="bg-white divide-y divide-gray-200">
+                                        <!-- Report data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSettings() {
+            return `
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center mb-6">
+                            <i class="fas fa-cog text-blue-500 text-xl mr-3"></i>
+                            <h2 class="text-xl font-bold text-gray-900">Pengaturan Sistem</h2>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="border-b border-gray-200 pb-6">
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Sekolah</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="schoolName" class="block text-sm font-medium text-gray-700 mb-2">Nama Sekolah</label>
+                                        <input type="text" id="schoolName" value="SMAN 1 Jakarta" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label for="schoolAddress" class="block text-sm font-medium text-gray-700 mb-2">Alamat</label>
+                                        <input type="text" id="schoolAddress" value="Jl. Pendidikan No. 123, Jakarta" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label for="schoolPhone" class="block text-sm font-medium text-gray-700 mb-2">Telepon</label>
+                                        <input type="text" id="schoolPhone" value="021-1234567" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label for="schoolEmail" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                        <input type="email" id="schoolEmail" value="info@sman1jakarta.sch.id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border-b border-gray-200 pb-6">
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Pengaturan Absensi</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-900">Wajib Foto saat Absensi</label>
+                                            <p class="text-sm text-gray-500">Guru harus mengambil foto saat input absensi</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer" checked>
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-900">Wajib Lokasi saat Absensi</label>
+                                            <p class="text-sm text-gray-500">Sistem akan memverifikasi lokasi guru</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer" checked>
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-900">Notifikasi WhatsApp Otomatis</label>
+                                            <p class="text-sm text-gray-500">Kirim notifikasi ke orang tua jika siswa alpha</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer">
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Backup & Restore</h3>
+                                <div class="flex space-x-4">
+                                    <button onclick="backupData()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        <i class="fas fa-download mr-2"></i>Backup Data
+                                    </button>
+                                    <button onclick="restoreData()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        <i class="fas fa-upload mr-2"></i>Restore Data
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="pt-6">
+                                <button onclick="saveSettings()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                                    <i class="fas fa-save mr-2"></i>Simpan Pengaturan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAttendanceHistory() {
+            return `
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <i class="fas fa-history text-blue-500 text-xl mr-3"></i>
+                                <h2 class="text-xl font-bold text-gray-900">Riwayat Absensi</h2>
+                            </div>
+                            <div class="flex space-x-2">
+                                <select id="historyClass" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="">Semua Kelas</option>
+                                    ${(currentUser.classes || classes).map(cls => `<option value="${cls}">${cls}</option>`).join('')}
+                                </select>
+                                <input type="date" id="historyDate" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mata Pelajaran</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Materi</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hadir</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tidak Hadir</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">15 Jan 2024</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">XII IPA 1</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Matematika</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">Integral</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">28</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-medium">2</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            <button onclick="viewAttendanceDetail('1')" class="text-blue-600 hover:text-blue-900">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button onclick="editAttendance('1')" class="text-green-600 hover:text-green-900">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">14 Jan 2024</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">XII IPA 2</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Matematika</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">Diferensial</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">30</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-medium">0</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            <button onclick="viewAttendanceDetail('2')" class="text-blue-600 hover:text-blue-900">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button onclick="editAttendance('2')" class="text-green-600 hover:text-green-900">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMonitoring() {
+            return `
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <i class="fas fa-eye text-blue-500 text-xl mr-3"></i>
+                                <h2 class="text-xl font-bold text-gray-900">Monitoring Siswa Kelas ${currentUser.class || 'XII IPA 1'}</h2>
+                            </div>
+                            <button onclick="exportMonitoring()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-download mr-2"></i>Export Excel
+                            </button>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Siswa</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NISN</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hadir</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Izin</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sakit</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alpha</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Persentase</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    ${sampleStudents.filter(s => s.class === (currentUser.class || 'XII IPA 1')).map(student => {
+                                        const stats = calculateStudentStats(student.attendance);
+                                        return `
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${student.name}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.nisn}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">${stats.hadir}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-yellow-600 font-medium">${stats.izin}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-medium">${stats.sakit}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-medium">${stats.alpha}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${stats.percentage >= 80 ? 'text-green-600' : 'text-red-600'}">${stats.percentage}%</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                                    <button onclick="viewStudentDetail('${student.id}')" class="text-blue-600 hover:text-blue-900">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button onclick="sendWhatsApp('${student.parentPhone}', '${student.name}')" class="text-green-600 hover:text-green-900">
+                                                        <i class="fab fa-whatsapp"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDailyAttendance() {
+            const today = new Date().toISOString().split('T')[0];
+            return `
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <i class="fas fa-calendar-day text-blue-500 text-xl mr-3"></i>
+                                <h2 class="text-xl font-bold text-gray-900">Absensi Harian Kelas ${currentUser.class || 'XII IPA 1'}</h2>
+                            </div>
+                            <input type="date" id="dailyDate" value="${today}" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                            <div class="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+                                <div class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 text-2xl mr-3"></i>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Hadir</p>
+                                        <p class="text-2xl font-bold text-gray-900">28</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500">
+                                <div class="flex items-center">
+                                    <i class="fas fa-info-circle text-yellow-500 text-2xl mr-3"></i>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Izin</p>
+                                        <p class="text-2xl font-bold text-gray-900">1</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                                <div class="flex items-center">
+                                    <i class="fas fa-heart text-blue-500 text-2xl mr-3"></i>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Sakit</p>
+                                        <p class="text-2xl font-bold text-gray-900">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-red-50 rounded-lg p-4 border-l-4 border-red-500">
+                                <div class="flex items-center">
+                                    <i class="fas fa-times-circle text-red-500 text-2xl mr-3"></i>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Alpha</p>
+                                        <p class="text-2xl font-bold text-gray-900">1</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Siswa</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jam 1</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jam 2</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jam 3</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jam 4</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jam 5</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jam 6</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    ${sampleStudents.filter(s => s.class === (currentUser.class || 'XII IPA 1')).map(student => `
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${student.name}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">H</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">H</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">I</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">H</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">H</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">A</span>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderProblematicStudents() {
+            const categories = categorizeProblematicStudents();
+            
+            return `
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center mb-6">
+                            <i class="fas fa-exclamation-triangle text-red-500 text-xl mr-3"></i>
+                            <h2 class="text-xl font-bold text-gray-900">Kategori Siswa Perhatian Khusus</h2>
+                            <span class="ml-2 text-sm text-gray-500">(30 hari terakhir)</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                            ${Object.entries(categories).map(([category, data]) => `
+                                <div class="bg-gradient-to-r ${data.gradient} rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow" onclick="showCategoryDetail('${category}')">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h3 class="font-semibold">${data.title}</h3>
+                                            <p class="text-sm opacity-90">${data.description}</p>
+                                        </div>
+                                        <div class="text-2xl font-bold">${data.students.length}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div id="categoryDetail" class="hidden">
+                            <!-- Category detail will be shown here -->
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderNotifications() {
+            return `
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <i class="fab fa-whatsapp text-green-500 text-xl mr-3"></i>
+                                <h2 class="text-xl font-bold text-gray-900">Notifikasi WhatsApp</h2>
+                            </div>
+                            <button onclick="sendBulkNotification()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                <i class="fab fa-whatsapp mr-2"></i>Kirim Notifikasi Massal
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div class="bg-blue-50 rounded-lg p-4">
+                                <h3 class="font-semibold text-gray-900 mb-3">Template Pesan</h3>
+                                <div class="space-y-2">
+                                    <button onclick="selectTemplate('alpha')" class="w-full text-left p-3 bg-white rounded border hover:bg-gray-50 transition-colors">
+                                        <div class="font-medium text-gray-900">Siswa Alpha</div>
+                                        <div class="text-sm text-gray-500">Pemberitahuan ketidakhadiran tanpa keterangan</div>
+                                    </button>
+                                    <button onclick="selectTemplate('late')" class="w-full text-left p-3 bg-white rounded border hover:bg-gray-50 transition-colors">
+                                        <div class="font-medium text-gray-900">Siswa Terlambat</div>
+                                        <div class="text-sm text-gray-500">Pemberitahuan keterlambatan</div>
+                                    </button>
+                                    <button onclick="selectTemplate('achievement')" class="w-full text-left p-3 bg-white rounded border hover:bg-gray-50 transition-colors">
+                                        <div class="font-medium text-gray-900">Prestasi Siswa</div>
+                                        <div class="text-sm text-gray-500">Pemberitahuan prestasi positif</div>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-green-50 rounded-lg p-4">
+                                <h3 class="font-semibold text-gray-900 mb-3">Compose Pesan</h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label for="messageTemplate" class="block text-sm font-medium text-gray-700 mb-1">Template</label>
+                                        <select id="messageTemplate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                            <option value="">Pilih Template</option>
+                                            <option value="alpha">Siswa Alpha</option>
+                                            <option value="late">Siswa Terlambat</option>
+                                            <option value="achievement">Prestasi Siswa</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="messageText" class="block text-sm font-medium text-gray-700 mb-1">Pesan</label>
+                                        <textarea id="messageText" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Tulis pesan Anda..."></textarea>
+                                    </div>
+                                    <button onclick="previewMessage()" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg transition-colors">
+                                        <i class="fas fa-eye mr-2"></i>Preview Pesan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Siswa</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orang Tua</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. WhatsApp</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Terakhir</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    ${sampleStudents.filter(s => s.class === (currentUser.class || 'XII IPA 1')).map(student => `
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500" value="${student.id}">
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${student.name}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.parentName}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.parentPhone}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(student.attendance[0]?.status || 'Hadir')}">
+                                                    ${student.attendance[0]?.status || 'Hadir'}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <button onclick="sendWhatsApp('${student.parentPhone}', '${student.name}')" class="text-green-600 hover:text-green-900">
+                                                    <i class="fab fa-whatsapp mr-1"></i>Kirim
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderOverview() {
+            return `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-users text-blue-500 text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-500">Total Siswa</p>
+                                    <p class="text-2xl font-bold text-gray-900">450</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-chalkboard-teacher text-green-500 text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-500">Total Guru</p>
+                                    <p class="text-2xl font-bold text-gray-900">35</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-door-open text-yellow-500 text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-500">Total Kelas</p>
+                                    <p class="text-2xl font-bold text-gray-900">12</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-percentage text-purple-500 text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-500">Kehadiran Hari Ini</p>
+                                    <p class="text-2xl font-bold text-gray-900">94.7%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">Kehadiran per Kelas Hari Ini</h3>
+                            <div class="space-y-3">
+                                ${classes.map(cls => {
+                                    const percentage = Math.floor(Math.random() * 20) + 80;
+                                    const color = percentage >= 90 ? 'bg-green-500' : percentage >= 80 ? 'bg-yellow-500' : 'bg-red-500';
+                                    return `
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm font-medium text-gray-900">${cls}</span>
+                                            <div class="flex items-center space-x-2">
+                                                <div class="w-32 bg-gray-200 rounded-full h-2">
+                                                    <div class="${color} h-2 rounded-full" style="width: ${percentage}%"></div>
+                                                </div>
+                                                <span class="text-sm font-medium text-gray-900 w-12">${percentage}%</span>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">Tren Kehadiran Mingguan</h3>
+                            <div class="h-64 flex items-end justify-between space-x-2">
+                                ${generateWeeklyChart()}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStatistics() {
+            return `
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <i class="fas fa-chart-line text-blue-500 text-xl mr-3"></i>
+                                <h2 class="text-xl font-bold text-gray-900">Statistik Kehadiran</h2>
+                            </div>
+                            <div class="flex space-x-2">
+                                <select id="statsPeriod" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="week">Minggu Ini</option>
+                                    <option value="month">Bulan Ini</option>
+                                    <option value="semester">Semester Ini</option>
+                                    <option value="year">Tahun Ini</option>
+                                </select>
+                                <button onclick="exportStatistics()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                    <i class="fas fa-download mr-2"></i>Export
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            <div class="bg-green-50 rounded-lg p-6 border-l-4 border-green-500">
+                                <div class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 text-3xl mr-4"></i>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Total Hadir</p>
+                                        <p class="text-3xl font-bold text-gray-900">8,542</p>
+                                        <p class="text-sm text-green-600">↑ 2.5% dari minggu lalu</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-yellow-50 rounded-lg p-6 border-l-4 border-yellow-500">
+                                <div class="flex items-center">
+                                    <i class="fas fa-info-circle text-yellow-500 text-3xl mr-4"></i>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Total Izin</p>
+                                        <p class="text-3xl font-bold text-gray-900">234</p>
+                                        <p class="text-sm text-yellow-600">↑ 1.2% dari minggu lalu</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-blue-50 rounded-lg p-6 border-l-4 border-blue-500">
+                                <div class="flex items-center">
+                                    <i class="fas fa-heart text-blue-500 text-3xl mr-4"></i>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Total Sakit</p>
+                                        <p class="text-3xl font-bold text-gray-900">156</p>
+                                        <p class="text-sm text-blue-600">↓ 0.8% dari minggu lalu</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-red-50 rounded-lg p-6 border-l-4 border-red-500">
+                                <div class="flex items-center">
+                                    <i class="fas fa-times-circle text-red-500 text-3xl mr-4"></i>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Total Alpha</p>
+                                        <p class="text-3xl font-bold text-gray-900">89</p>
+                                        <p class="text-sm text-red-600">↑ 3.1% dari minggu lalu</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-bold text-gray-900 mb-4">Grafik Tren Bulanan</h3>
+                                <div class="h-64 flex items-end justify-between space-x-1">
+                                    ${Array.from({length: 12}, (_, i) => {
+                                        const height = Math.floor(Math.random() * 80) + 20;
+                                        const month = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'][i];
+                                        return `
+                                            <div class="flex flex-col items-center flex-1">
+                                                <div class="bg-blue-500 rounded-t w-full mb-2" style="height: ${height * 2}px"></div>
+                                                <span class="text-xs text-gray-600 transform -rotate-45">${month}</span>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-bold text-gray-900 mb-4">Top 5 Kelas Terbaik</h3>
+                                <div class="space-y-3">
+                                    ${classes.slice(0, 5).map((cls, index) => {
+                                        const percentage = Math.floor(Math.random() * 10) + 90;
+                                        const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+                                        return `
+                                            <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                                <div class="flex items-center space-x-3">
+                                                    <span class="text-2xl">${medals[index]}</span>
+                                                    <span class="font-medium text-gray-900">${cls}</span>
+                                                </div>
+                                                <span class="text-lg font-bold text-green-600">${percentage}%</span>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderActivities() {
+            return `
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <i class="fas fa-bell text-blue-500 text-xl mr-3"></i>
+                                <h2 class="text-xl font-bold text-gray-900">Aktivitas Terbaru</h2>
+                            </div>
+                            <div class="flex space-x-2">
+                                <select id="activityFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="all">Semua Aktivitas</option>
+                                    <option value="attendance">Absensi</option>
+                                    <option value="alerts">Peringatan</option>
+                                    <option value="reports">Laporan</option>
+                                </select>
+                                <button onclick="refreshActivities()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                    <i class="fas fa-sync-alt mr-2"></i>Refresh
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            ${generateDetailedActivities().map(activity => `
+                                <div class="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 rounded-full ${activity.bgColor} flex items-center justify-center">
+                                            <i class="${activity.icon} ${activity.iconColor}"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between">
+                                            <p class="text-sm font-medium text-gray-900">${activity.title}</p>
+                                            <p class="text-xs text-gray-500">${activity.time}</p>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mt-1">${activity.description}</p>
+                                        <div class="flex items-center space-x-4 mt-2">
+                                            <span class="text-xs text-gray-500">
+                                                <i class="fas fa-user mr-1"></i>${activity.user}
+                                            </span>
+                                            <span class="text-xs text-gray-500">
+                                                <i class="fas fa-map-marker-alt mr-1"></i>${activity.location}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <button onclick="viewActivityDetail('${activity.id}')" class="text-blue-600 hover:text-blue-900">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div class="mt-6 text-center">
+                            <button onclick="loadMoreActivities()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Muat Lebih Banyak
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Helper functions
+        function generateDashboardStats() {
+            const baseStats = [
+                { label: 'Total Siswa', value: '450', icon: 'fas fa-user-graduate', color: 'border-blue-500', textColor: 'text-blue-500' },
+                { label: 'Hadir Hari Ini', value: '426', icon: 'fas fa-check-circle', color: 'border-green-500', textColor: 'text-green-500' },
+                { label: 'Tidak Hadir', value: '24', icon: 'fas fa-times-circle', color: 'border-red-500', textColor: 'text-red-500' },
+                { label: 'Persentase Kehadiran', value: '94.7%', icon: 'fas fa-chart-pie', color: 'border-purple-500', textColor: 'text-purple-500' }
+            ];
+
+            if (currentUser.role === 'Guru') {
+                return [
+                    { label: 'Kelas Diampu', value: (currentUser.classes || ['XII IPA 1', 'XII IPA 2']).length.toString(), icon: 'fas fa-chalkboard-teacher', color: 'border-blue-500', textColor: 'text-blue-500' },
+                    { label: 'Absensi Hari Ini', value: '3', icon: 'fas fa-clipboard-check', color: 'border-green-500', textColor: 'text-green-500' },
+                    { label: 'Siswa Alpha', value: '2', icon: 'fas fa-exclamation-triangle', color: 'border-red-500', textColor: 'text-red-500' },
+                    { label: 'Mata Pelajaran', value: currentUser.subject || 'Matematika', icon: 'fas fa-book', color: 'border-purple-500', textColor: 'text-purple-500' }
+                ];
+            } else if (currentUser.role === 'Wali Kelas') {
+                return [
+                    { label: 'Siswa di Kelas', value: '30', icon: 'fas fa-users', color: 'border-blue-500', textColor: 'text-blue-500' },
+                    { label: 'Hadir Hari Ini', value: '28', icon: 'fas fa-check-circle', color: 'border-green-500', textColor: 'text-green-500' },
+                    { label: 'Perlu Perhatian', value: '3', icon: 'fas fa-exclamation-triangle', color: 'border-red-500', textColor: 'text-red-500' },
+                    { label: 'Kehadiran Kelas', value: '93.3%', icon: 'fas fa-chart-pie', color: 'border-purple-500', textColor: 'text-purple-500' }
+                ];
+            }
+
+            return baseStats;
+        }
+
+        function generateRecentActivities() {
+            const activities = [
+                { title: 'Ahmad Rizki Alpha - Matematika', time: '10 menit lalu', icon: 'fas fa-exclamation-circle', color: 'text-red-500' },
+                { title: 'Siti Nurhaliza Izin - Fisika', time: '25 menit lalu', icon: 'fas fa-info-circle', color: 'text-yellow-500' },
+                { title: 'Budi Santoso Sakit - Kimia', time: '1 jam lalu', icon: 'fas fa-heart', color: 'text-blue-500' },
+                { title: 'Laporan harian kelas XII IPA 1', time: '2 jam lalu', icon: 'fas fa-file-alt', color: 'text-green-500' },
+                { title: 'Notifikasi WhatsApp terkirim', time: '3 jam lalu', icon: 'fab fa-whatsapp', color: 'text-green-500' }
+            ];
+
+            return activities.slice(0, 4);
+        }
+
+        function generateDetailedActivities() {
+            return [
+                {
+                    id: 1,
+                    title: 'Absensi Matematika XII IPA 1',
+                    description: 'Pak Suharto telah menginput absensi untuk mata pelajaran Matematika',
+                    time: '5 menit lalu',
+                    user: 'Pak Suharto',
+                    location: 'Ruang 12A',
+                    icon: 'fas fa-clipboard-check',
+                    iconColor: 'text-green-600',
+                    bgColor: 'bg-green-100'
+                },
+                {
+                    id: 2,
+                    title: 'Siswa Alpha Terdeteksi',
+                    description: 'Ahmad Rizki Pratama tidak hadir tanpa keterangan pada jam ke-3',
+                    time: '15 menit lalu',
+                    user: 'Sistem',
+                    location: 'XII IPA 1',
+                    icon: 'fas fa-exclamation-triangle',
+                    iconColor: 'text-red-600',
+                    bgColor: 'bg-red-100'
+                },
+                {
+                    id: 3,
+                    title: 'Laporan Harian Dibuat',
+                    description: 'Bu Sari telah membuat laporan kehadiran harian untuk kelas XII IPA 1',
+                    time: '1 jam lalu',
+                    user: 'Bu Sari',
+                    location: 'XII IPA 1',
+                    icon: 'fas fa-file-alt',
+                    iconColor: 'text-blue-600',
+                    bgColor: 'bg-blue-100'
+                },
+                {
+                    id: 4,
+                    title: 'Notifikasi WhatsApp Terkirim',
+                    description: 'Notifikasi ketidakhadiran telah dikirim ke orang tua siswa',
+                    time: '2 jam lalu',
+                    user: 'Bu Sari',
+                    location: 'XII IPA 1',
+                    icon: 'fab fa-whatsapp',
+                    iconColor: 'text-green-600',
+                    bgColor: 'bg-green-100'
+                },
+                {
+                    id: 5,
+                    title: 'Data Siswa Diperbarui',
+                    description: 'Administrator telah memperbarui data siswa baru',
+                    time: '3 jam lalu',
+                    user: 'Administrator',
+                    location: 'Sistem',
+                    icon: 'fas fa-user-edit',
+                    iconColor: 'text-purple-600',
+                    bgColor: 'bg-purple-100'
+                }
+            ];
+        }
+
+        function generateWeeklyChart() {
+            const days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+            const data = [85, 92, 78, 95, 88, 90];
+            const maxValue = Math.max(...data);
+            
+            return days.map((day, index) => {
+                const height = (data[index] / maxValue) * 100;
+                return `
+                    <div class="flex flex-col items-center">
+                        <div class="bg-blue-500 rounded-t w-8 mb-2" style="height: ${height * 2}px"></div>
+                        <span class="text-xs text-gray-600">${day}</span>
+                        <span class="text-xs font-medium text-gray-900">${data[index]}%</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function calculateStudentStats(attendance) {
+            const stats = {
+                hadir: attendance.filter(a => a.status === 'Hadir').length,
+                izin: attendance.filter(a => a.status === 'Izin').length,
+                sakit: attendance.filter(a => a.status === 'Sakit').length,
+                alpha: attendance.filter(a => a.status === 'Alpha').length
+            };
+            
+            const total = attendance.length;
+            stats.percentage = total > 0 ? ((stats.hadir / total) * 100).toFixed(1) : 0;
+            
+            return stats;
+        }
+
+        function categorizeProblematicStudents() {
+            const categories = {
+                'very-problematic': {
+                    title: 'Sangat Bermasalah',
+                    description: 'Alpha ≥7 kali',
+                    gradient: 'from-red-500 to-red-600',
+                    students: [sampleStudents[2]] // Budi has 2 alpha, but we'll simulate more
+                },
+                'need-attention': {
+                    title: 'Perlu Perhatian',
+                    description: 'Alpha 3-6 kali',
+                    gradient: 'from-orange-500 to-orange-600',
+                    students: []
+                },
+                'starting-problem': {
+                    title: 'Mulai Bermasalah',
+                    description: 'Alpha 1-2 kali',
+                    gradient: 'from-yellow-500 to-yellow-600',
+                    students: [sampleStudents[0]] // Ahmad has 1 alpha
+                },
+                'normal': {
+                    title: 'Normal',
+                    description: 'Tidak ada alpha',
+                    gradient: 'from-green-500 to-green-600',
+                    students: [sampleStudents[1]] // Siti has no alpha
+                }
+            };
+
+            return categories;
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm fade-in`;
+            
+            const colors = {
+                'success': 'bg-green-500 text-white',
+                'error': 'bg-red-500 text-white',
+                'warning': 'bg-yellow-500 text-white',
+                'info': 'bg-blue-500 text-white'
+            };
+            
+            const icons = {
+                'success': 'fas fa-check-circle',
+                'error': 'fas fa-exclamation-circle',
+                'warning': 'fas fa-exclamation-triangle',
+                'info': 'fas fa-info-circle'
+            };
+            
+            notification.className += ` ${colors[type]}`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="${icons[type]} mr-3"></i>
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Login button event
+            document.getElementById('loginBtn').addEventListener('click', openLoginModal);
+            
+            // Logout button event
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // Enter key support for login
+            document.getElementById('accessCode').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    login();
+                }
+            });
+        });
+
+        // Event handlers and functions
+        function loadStudentList() {
+            const selectedClass = document.getElementById('attendanceClass').value;
+            const studentListDiv = document.getElementById('studentList');
+            
+            if (!selectedClass) {
+                studentListDiv.innerHTML = '';
+                return;
+            }
+            
+            const studentsInClass = sampleStudents.filter(s => s.class === selectedClass);
+            
+            studentListDiv.innerHTML = `
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-900 mb-3">Daftar Siswa - ${selectedClass}</h3>
+                    <div class="space-y-2">
+                        ${studentsInClass.map(student => `
+                            <div class="flex items-center justify-between p-3 bg-white rounded border">
+                                <span class="font-medium text-gray-900">${student.name}</span>
+                                <div class="flex space-x-2">
+                                    <button type="button" onclick="markAttendance('${student.id}', 'Hadir')" class="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                                        Hadir
+                                    </button>
+                                    <button type="button" onclick="markAttendance('${student.id}', 'Izin')" class="px-3 py-1 text-xs bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors">
+                                        Izin
+                                    </button>
+                                    <button type="button" onclick="markAttendance('${student.id}', 'Sakit')" class="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                                        Sakit
+                                    </button>
+                                    <button type="button" onclick="markAttendance('${student.id}', 'Alpha')" class="px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors">
+                                        Alpha
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function markAttendance(studentId, status) {
+            const studentDiv = event.target.closest('.flex');
+            const buttons = studentDiv.querySelectorAll('button');
+            
+            // Reset all buttons
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'990e4c21c1643e44',t:'MTc2MDg1NjE2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
